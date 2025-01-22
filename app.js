@@ -12,15 +12,16 @@ app.get('/', (req, res) => {
         endpoints: {
             health: '/health',
             test: '/test-bot',
-            weather: '/api/cron-weather',
-            earthquake: '/api/cron-earthquake'
+            weather: ['/cron-weather', '/api/cron-weather'],
+            earthquake: ['/cron-earthquake', '/api/cron-earthquake']
         }
     });
 });
 
-// API endpoints
-app.get('/api/cron-weather', async (req, res) => {
+// Weather endpoints (support both paths)
+app.get(['/cron-weather', '/api/cron-weather'], async (req, res) => {
     try {
+        console.log('Weather update triggered');
         await telegramBot.sendWeatherUpdates();
         res.status(200).json({ message: 'Weather update completed' });
     } catch (error) {
@@ -29,8 +30,10 @@ app.get('/api/cron-weather', async (req, res) => {
     }
 });
 
-app.get('/api/cron-earthquake', async (req, res) => {
+// Earthquake endpoints (support both paths)
+app.get(['/cron-earthquake', '/api/cron-earthquake'], async (req, res) => {
     try {
+        console.log('Earthquake check triggered');
         await telegramBot.sendEarthquakeUpdates();
         res.status(200).json({ message: 'Earthquake check completed' });
     } catch (error) {
