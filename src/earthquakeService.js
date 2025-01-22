@@ -61,9 +61,9 @@ class EarthquakeService {
         if (earthquakes.length === 0) {
             return {
                 text: `📊 *የ24 ሰዓት የመሬት መንቀጥቀጥ ማጠቃለያ | 24-HOUR EARTHQUAKE SUMMARY*\n\n` +
-                      `*አልሐምዱሊላህ! No earthquakes reported in the last 24 hours.* 🙏\n\n` +
+                      `*ተመስገን!! No earthquakes reported in the last 24 hours.* 🙏\n\n` +
                       `Stay prepared and stay safe! 🛡️`,
-                photo: 'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8' // Peaceful landscape
+                photo: 'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8'
             };
         }
 
@@ -95,9 +95,14 @@ class EarthquakeService {
         summary += `• *Channel:* @etweatheralert\n`;
         summary += `• *Contact:* @nastydeed`;
 
+        // Use a static summary image instead of a map
+        const summaryImage = earthquakes.length > 3 
+            ? 'https://images.unsplash.com/photo-1594156596782-656c93e4d504'  // More activity
+            : 'https://images.unsplash.com/photo-1581625392889-78e4e9c3a277'; // Less activity
+
         return {
             text: summary,
-            photo: 'https://images.unsplash.com/photo-1581625392889-78e4e9c3a277' // Dramatic landscape
+            photo: summaryImage
         };
     }
 
@@ -115,6 +120,27 @@ class EarthquakeService {
 
         const magnitudeDesc = this.getMagnitudeDescription(magnitude);
         const depthDesc = this.getDepthDescription(depth);
+        const [lon, lat] = earthquake.geometry.coordinates;
+
+        // Use OpenStreetMap static image instead of Google Maps
+        const imageUrl = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&size=450,450&z=6&l=map&pt=${lon},${lat},pm2rdm`;
+
+        // Fallback images based on magnitude
+        const fallbackImages = {
+            strong: 'https://images.unsplash.com/photo-1594156596782-656c93e4d504',
+            moderate: 'https://images.unsplash.com/photo-1581625392889-78e4e9c3a277',
+            light: 'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8'
+        };
+
+        // Select fallback image based on magnitude
+        let fallbackImage;
+        if (magnitude >= 4.0) {
+            fallbackImage = fallbackImages.strong;
+        } else if (magnitude >= 3.0) {
+            fallbackImage = fallbackImages.moderate;
+        } else {
+            fallbackImage = fallbackImages.light;
+        }
 
         // Get intensity note based on magnitude
         let intensityNote = '';
@@ -127,9 +153,6 @@ class EarthquakeService {
         } else {
             intensityNote = '\n*አስቸኳይ ማሳሰቢያ | URGENT:* የአደጋ ጊዜ ፕሮቶኮሎችን ይከተሉ! Follow emergency procedures immediately! 🚨';
         }
-
-        // Get earthquake image based on magnitude
-        const imageUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${earthquake.geometry.coordinates[1]},${earthquake.geometry.coordinates[0]}&zoom=6&size=600x300&maptype=terrain&markers=color:red|${earthquake.geometry.coordinates[1]},${earthquake.geometry.coordinates[0]}&key=YOUR_GOOGLE_MAPS_KEY`;
 
         const randomFact = infoService.getRandomEarthquakeFact();
 
@@ -145,7 +168,7 @@ class EarthquakeService {
                 `• *Join us:* @etweatheralert\n` +
                 `• *Contact:* @nastydeed\n\n` +
                 `${randomFact}`,
-            photo: imageUrl
+            photo: imageUrl || fallbackImage // Use fallback if map fails
         };
     }
 
