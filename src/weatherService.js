@@ -116,8 +116,8 @@ class WeatherService {
 
         message += '\n_Stay blessed like Ethiopian coffee!_ ☕\n\n' +
             `📅 *${timestamp}*\n` +
-            '🔔 Join us for daily updates: @YourUsername\n' +
-            '📱 Contact: @YourUsername';
+            '🔔 Join us for daily updates: etweatheralert\n' +
+            '📱 Contact: nastydeed';
 
         return message;
     }
