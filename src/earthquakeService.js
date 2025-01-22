@@ -29,7 +29,15 @@ class EarthquakeService {
     formatMessage(earthquake) {
         const magnitude = earthquake.properties.mag;
         const place = earthquake.properties.place;
-        const time = new Date(earthquake.properties.time).toLocaleString('en-ET');
+        const time = new Date(earthquake.properties.time).toLocaleString('en-ET', {
+            timeZone: 'Africa/Addis_Ababa',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
         const depth = earthquake.geometry.coordinates[2];
 
         // Fun magnitude descriptions
@@ -43,7 +51,10 @@ class EarthquakeService {
             `*Location:* ${place}\n` +
             `*Time:* ${time}\n` +
             `*Depth:* ${depth}km (${depthDesc})\n\n` +
-            `Stay safe, Ethiopia! 🇪🇹`;
+            `Stay safe, Ethiopia! 🇪🇹\n\n` +
+            `📅 *${time}*\n` +
+            '🔔 Join us for real-time alerts: @YourUsername\n' +
+            '📱 Contact: @YourUsername';
     }
 
     getMagnitudeDescription(magnitude) {

@@ -97,7 +97,16 @@ class WeatherService {
     }
 
     formatFullUpdate(weatherDataList) {
-        const timestamp = new Date().toLocaleString('en-ET');
+        const timestamp = new Date().toLocaleString('en-ET', {
+            timeZone: 'Africa/Addis_Ababa',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
         let message = `🌍 *Ethiopian Weather Update* 🇪🇹\n` +
             `${timestamp}\n\n`;
 
@@ -105,7 +114,11 @@ class WeatherService {
             message += this.formatWeatherMessage(data) + '\n';
         });
 
-        message += '\n_Stay blessed like Ethiopian coffee!_ ☕';
+        message += '\n_Stay blessed like Ethiopian coffee!_ ☕\n\n' +
+            `📅 *${timestamp}*\n` +
+            '🔔 Join us for daily updates: @YourUsername\n' +
+            '📱 Contact: @YourUsername';
+
         return message;
     }
 }
