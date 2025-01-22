@@ -1,0 +1,15 @@
+mkdir ethiopia-quake-bot
+cd ethiopia-quake-bot
+npm init -y
+npm install express node-telegram-bot-api axios node-cron dotenv 
+npm install 
+npm start 
+npm install -g vercel
+vercel login
+vercel 
+git init
+git add .
+git commit -m "Initial commit: Ethiopia Weather & Earthquake Bot" 
+git remote add origin https://github.com/YOUR_USERNAME/ethiopia-weather-bot.git
+git branch -M main
+git push -u origin main 
