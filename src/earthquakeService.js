@@ -31,30 +31,31 @@ class EarthquakeService {
         const place = earthquake.properties.place;
         const time = new Date(earthquake.properties.time).toLocaleString('en-ET', {
             timeZone: 'Africa/Addis_Ababa',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            weekday: 'long',
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
         });
         const depth = earthquake.geometry.coordinates[2];
 
-        // Fun magnitude descriptions
         const magnitudeDesc = this.getMagnitudeDescription(magnitude);
-        
-        // Fun depth descriptions
         const depthDesc = this.getDepthDescription(depth);
 
-        return `🚨 *Earthquake Alert in Ethiopia!* 🚨\n\n` +
-            `*Magnitude:* ${magnitude} (${magnitudeDesc})\n` +
-            `*Location:* ${place}\n` +
-            `*Time:* ${time}\n` +
-            `*Depth:* ${depth}km (${depthDesc})\n\n` +
-            `Stay safe, Ethiopia! 🇪🇹\n\n` +
-            `📅 *${time}*\n` +
-            '🔔 Join us for real-time alerts: @YourUsername\n' +
-            '📱 Contact: @YourUsername';
+        // Get earthquake image based on magnitude
+        const imageUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${earthquake.geometry.coordinates[1]},${earthquake.geometry.coordinates[0]}&zoom=6&size=600x300&maptype=terrain&markers=color:red|${earthquake.geometry.coordinates[1]},${earthquake.geometry.coordinates[0]}&key=YOUR_GOOGLE_MAPS_KEY`;
+
+        return {
+            text: `🚨 *የመሬት መንቀጥቀጥ ማሳወቂያ | EARTHQUAKE ALERT!* 🚨\n\n` +
+                `• *መጠን | Magnitude:* ${magnitude} (${magnitudeDesc})\n` +
+                `• *ቦታ | Location:* ${place}\n` +
+                `• *ሰዓት | Time:* ${time}\n` +
+                `• *ጥልቀት | Depth:* ${depth}km (${depthDesc})\n\n` +
+                `*🛡️ ተጠንቀቁ! | STAY SAFE, ETHIOPIA!* 🇪🇹\n\n` +
+                `📱 *ለተጨማሪ መረጃ | For more information:*\n` +
+                `• *Join us:* @etweatheralert\n` +
+                `• *Contact:* @nastydeed`,
+            photo: imageUrl
+        };
     }
 
     getMagnitudeDescription(magnitude) {

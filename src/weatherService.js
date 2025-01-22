@@ -36,7 +36,8 @@ class WeatherService {
                 humidity: response.data.main.humidity,
                 weather: response.data.weather[0].main,
                 description: response.data.weather[0].description,
-                wind_speed: response.data.wind.speed
+                wind_speed: response.data.wind.speed,
+                weather_icon: response.data.weather[0].icon
             };
         } catch (error) {
             console.error(`Error fetching weather for ${city.name}:`, error);
@@ -88,38 +89,45 @@ class WeatherService {
         const advice = this.getHumorousAdvice(weatherData.weather, weatherData.temp);
         const randomAdvice = advice[Math.floor(Math.random() * advice.length)];
 
-        return `*${weatherData.city}* ${emoji}\n` +
-            `Temperature: ${Math.round(weatherData.temp)}°C (Feels like ${Math.round(weatherData.feels_like)}°C)\n` +
-            `Weather: ${weatherData.description}\n` +
-            `Humidity: ${weatherData.humidity}%\n` +
-            `Wind: ${weatherData.wind_speed} m/s\n\n` +
-            `*Friendly Advice:* ${randomAdvice}\n`;
+        // Get weather icon URL
+        const iconCode = weatherData.weather_icon || '01d';
+        const weatherIconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+
+        return {
+            text: `*${weatherData.city}* ${emoji}\n\n` +
+                `• *Temperature:* ${Math.round(weatherData.temp)}°C\n` +
+                `• *Feels like:* ${Math.round(weatherData.feels_like)}°C\n` +
+                `• *Weather:* ${weatherData.description}\n` +
+                `• *Humidity:* ${weatherData.humidity}%\n` +
+                `• *Wind:* ${weatherData.wind_speed} m/s\n\n` +
+                `*🌟 Friendly Advice:* ${randomAdvice}\n`,
+            photo: weatherIconUrl
+        };
     }
 
-    formatFullUpdate(weatherDataList) {
+    async formatFullUpdate(weatherDataList) {
         const timestamp = new Date().toLocaleString('en-ET', {
             timeZone: 'Africa/Addis_Ababa',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+            weekday: 'long',
             hour: '2-digit',
             minute: '2-digit',
             hour12: true
         });
 
-        let message = `🌍 *Ethiopian Weather Update* 🇪🇹\n` +
-            `${timestamp}\n\n`;
+        let messages = [];
+        for (const data of weatherDataList) {
+            const formattedData = this.formatWeatherMessage(data);
+            messages.push({
+                text: `🌍 *ETHIOPIAN WEATHER UPDATE* 🇪🇹\n\n${formattedData.text}\n` +
+                    `*📱 Stay Connected:*\n` +
+                    `• *Join Channel:* @etweatheralert\n` +
+                    `• *Contact:* @nastydeed\n\n` +
+                    `⏰ *Updated:* ${timestamp}`,
+                photo: formattedData.photo
+            });
+        }
 
-        weatherDataList.forEach(data => {
-            message += this.formatWeatherMessage(data) + '\n';
-        });
-
-        message += '\n_Stay blessed like Ethiopian coffee!_ ☕\n\n' +
-            `📅 *${timestamp}*\n` +
-            '🔔 Join us for daily updates: etweatheralert\n' +
-            '📱 Contact: nastydeed';
-
-        return message;
+        return messages;
     }
 }
 

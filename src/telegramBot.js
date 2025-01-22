@@ -14,11 +14,14 @@ class TelegramBotService {
             
             for (const quake of earthquakes) {
                 const message = earthquakeService.formatMessage(quake);
-                await this.bot.sendMessage(TELEGRAM_CHANNEL_ID, message, {
-                    parse_mode: 'Markdown'
-                });
-                
-                // Add delay between messages to avoid hitting rate limits
+                await this.bot.sendPhoto(
+                    TELEGRAM_CHANNEL_ID,
+                    message.photo,
+                    {
+                        caption: message.text,
+                        parse_mode: 'Markdown'
+                    }
+                );
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
         } catch (error) {
@@ -30,10 +33,18 @@ class TelegramBotService {
         try {
             const weatherData = await weatherService.getWeatherUpdates();
             if (weatherData.length > 0) {
-                const message = weatherService.formatFullUpdate(weatherData);
-                await this.bot.sendMessage(TELEGRAM_CHANNEL_ID, message, {
-                    parse_mode: 'Markdown'
-                });
+                const messages = await weatherService.formatFullUpdate(weatherData);
+                for (const message of messages) {
+                    await this.bot.sendPhoto(
+                        TELEGRAM_CHANNEL_ID,
+                        message.photo,
+                        {
+                            caption: message.text,
+                            parse_mode: 'Markdown'
+                        }
+                    );
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
         } catch (error) {
             console.error('Error sending weather updates:', error);
