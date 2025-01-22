@@ -1,0 +1,22 @@
+name: Scheduled Bot Updates
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Every 5 minutes for earthquake updates
+    - cron: '*/30 * * * *' # Every 30 minutes for weather updates
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Earthquake Check
+        run: |
+          curl -X GET ${{ secrets.VERCEL_URL }}/api/cron-earthquake
+        
+      - name: Weather Update
+        run: |
+          curl -X GET ${{ secrets.VERCEL_URL }}/api/cron-weather
+
+env:
+  TZ: 'Africa/Addis_Ababa' 

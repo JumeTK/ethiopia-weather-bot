@@ -11,15 +11,5 @@
             "src": "/(.*)",
             "dest": "app.js"
         }
-    ],
-    "crons": [
-        {
-            "path": "/api/cron-weather",
-            "schedule": "*/30 * * * *"
-        },
-        {
-            "path": "/api/cron-earthquake",
-            "schedule": "*/5 * * * *"
-        }
     ]
 } 

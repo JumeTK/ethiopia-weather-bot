@@ -6,10 +6,15 @@ npm install
 npm start 
 npm install -g vercel
 vercel login
-vercel 
+vercel --prod
 git init
 git add .
 git commit -m "Initial commit: Ethiopia Weather & Earthquake Bot" 
 git remote add origin https://github.com/YOUR_USERNAME/ethiopia-weather-bot.git
 git branch -M main
 git push -u origin main 
+mkdir -p .github/workflows
+git add .github/workflows/cron.yml
+git commit -m "Add GitHub Actions cron workflow"
+git push 
+rm -rf .github 
