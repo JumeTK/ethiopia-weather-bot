@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { WEATHER_API_KEY } = require('../config');
+const infoService = require('./infoService');
 
 class WeatherService {
     // Major Ethiopian cities/regions
@@ -89,9 +90,8 @@ class WeatherService {
         const advice = this.getHumorousAdvice(weatherData.weather, weatherData.temp);
         const randomAdvice = advice[Math.floor(Math.random() * advice.length)];
 
-        // Get weather icon URL
-        const iconCode = weatherData.weather_icon || '01d';
-        const weatherIconUrl = `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
+        // Get weather-specific nature image
+        const weatherImage = this.getWeatherImage(weatherData.weather, weatherData.temp);
 
         return {
             text: `*${weatherData.city}* ${emoji}\n\n` +
@@ -101,8 +101,59 @@ class WeatherService {
                 `• *Humidity:* ${weatherData.humidity}%\n` +
                 `• *Wind:* ${weatherData.wind_speed} m/s\n\n` +
                 `*🌟 Friendly Advice:* ${randomAdvice}\n`,
-            photo: weatherIconUrl
+            photo: weatherImage
         };
+    }
+
+    getWeatherImage(weather, temp) {
+        const weatherImages = {
+            Clear: [
+                // Sunny Ethiopian landscapes
+                'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8', // Simien Mountains
+                'https://images.unsplash.com/photo-1515431940021-f59805522576', // Ethiopian Highlands
+                'https://images.unsplash.com/photo-1589308454676-22c527126c88', // Danakil Desert
+                'https://images.unsplash.com/photo-1518709594023-6eab9bab7b23'  // Blue Nile Falls (sunny)
+            ],
+            Clouds: [
+                // Cloudy Ethiopian scenes
+                'https://images.unsplash.com/photo-1525824236856-9c0918e7ac91', // Cloudy Mountains
+                'https://images.unsplash.com/photo-1520785815200-4f4c88f7c81d', // Misty Valley
+                'https://images.unsplash.com/photo-1574788901656-6a9ee34a3fa7', // Foggy Forest
+                'https://images.unsplash.com/photo-1612456225451-bb8d10d0131d'  // Cloudy Highlands
+            ],
+            Rain: [
+                // Rainy Ethiopian landscapes
+                'https://images.unsplash.com/photo-1519692933481-e162a57d6721', // Green Valley
+                'https://images.unsplash.com/photo-1584267385494-9fdd9a71ad75', // Tropical Rain
+                'https://images.unsplash.com/photo-1583245117317-5f677a816f0c', // Rainy Forest
+                'https://images.unsplash.com/photo-1515518554912-63b4da53597d'  // Wet Season
+            ],
+            Thunderstorm: [
+                // Dramatic storm scenes
+                'https://images.unsplash.com/photo-1594156596782-656c93e4d504', // Lightning
+                'https://images.unsplash.com/photo-1527572232473-494f1e9c7917', // Storm Clouds
+                'https://images.unsplash.com/photo-1587135991058-8816b028691f', // Thunder
+                'https://images.unsplash.com/photo-1581625392889-78e4e9c3a277'  // Dramatic Sky
+            ],
+            Drizzle: [
+                // Light rain scenes
+                'https://images.unsplash.com/photo-1541919329513-35f7af297129', // Misty Rain
+                'https://images.unsplash.com/photo-1573075175751-c379b0f79afe', // Light Shower
+                'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0', // Drizzle
+                'https://images.unsplash.com/photo-1518873247959-c0c01f21c4a5'  // Gentle Rain
+            ],
+            Mist: [
+                // Misty Ethiopian landscapes
+                'https://images.unsplash.com/photo-1587135991058-8816b028691f', // Foggy Valley
+                'https://images.unsplash.com/photo-1513436539083-9d2127e742f1', // Morning Mist
+                'https://images.unsplash.com/photo-1511884642898-4c92249e20b6', // Misty Mountains
+                'https://images.unsplash.com/photo-1517685352821-92cf88aee5a5'  // Hazy Morning
+            ]
+        };
+
+        // Get images for the current weather
+        const images = weatherImages[weather] || weatherImages.Clear;
+        return images[Math.floor(Math.random() * images.length)];
     }
 
     async formatFullUpdate(weatherDataList) {
@@ -122,6 +173,7 @@ class WeatherService {
                     `*📱 Stay Connected:*\n` +
                     `• *Join Channel:* @etweatheralert\n` +
                     `• *Contact:* @nastydeed\n\n` +
+                    `${randomFact}\n\n` +
                     `⏰ *Updated:* ${timestamp}`,
                 photo: formattedData.photo
             });
