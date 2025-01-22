@@ -120,26 +120,31 @@ class EarthquakeService {
 
         const magnitudeDesc = this.getMagnitudeDescription(magnitude);
         const depthDesc = this.getDepthDescription(depth);
-        const [lon, lat] = earthquake.geometry.coordinates;
 
-        // Use OpenStreetMap static image instead of Google Maps
-        const imageUrl = `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lon},${lat}&size=450,450&z=6&l=map&pt=${lon},${lat},pm2rdm`;
-
-        // Fallback images based on magnitude
-        const fallbackImages = {
-            strong: 'https://images.unsplash.com/photo-1594156596782-656c93e4d504',
-            moderate: 'https://images.unsplash.com/photo-1581625392889-78e4e9c3a277',
-            light: 'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8'
+        // Static earthquake images based on magnitude and depth
+        const earthquakeImages = {
+            severe: [
+                'https://images.pexels.com/photos/1295138/pexels-photo-1295138.jpeg',
+                'https://images.pexels.com/photos/1732414/pexels-photo-1732414.jpeg'
+            ],
+            moderate: [
+                'https://images.pexels.com/photos/2251247/pexels-photo-2251247.jpeg',
+                'https://images.pexels.com/photos/2480807/pexels-photo-2480807.jpeg'
+            ],
+            light: [
+                'https://images.pexels.com/photos/2227774/pexels-photo-2227774.jpeg',
+                'https://images.pexels.com/photos/2356059/pexels-photo-2356059.jpeg'
+            ]
         };
 
-        // Select fallback image based on magnitude
-        let fallbackImage;
+        // Select image based on magnitude
+        let selectedImage;
         if (magnitude >= 4.0) {
-            fallbackImage = fallbackImages.strong;
+            selectedImage = earthquakeImages.severe[Math.floor(Math.random() * earthquakeImages.severe.length)];
         } else if (magnitude >= 3.0) {
-            fallbackImage = fallbackImages.moderate;
+            selectedImage = earthquakeImages.moderate[Math.floor(Math.random() * earthquakeImages.moderate.length)];
         } else {
-            fallbackImage = fallbackImages.light;
+            selectedImage = earthquakeImages.light[Math.floor(Math.random() * earthquakeImages.light.length)];
         }
 
         // Get intensity note based on magnitude
@@ -168,7 +173,7 @@ class EarthquakeService {
                 `• *Join us:* @etweatheralert\n` +
                 `• *Contact:* @nastydeed\n\n` +
                 `${randomFact}`,
-            photo: imageUrl || fallbackImage // Use fallback if map fails
+            photo: selectedImage
         };
     }
 
