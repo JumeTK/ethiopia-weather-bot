@@ -90,19 +90,13 @@ class WeatherService {
         const advice = this.getHumorousAdvice(weatherData.weather, weatherData.temp);
         const randomAdvice = advice[Math.floor(Math.random() * advice.length)];
 
-        // Get weather-specific nature image
-        const weatherImage = this.getWeatherImage(weatherData.weather, weatherData.temp);
-
-        return {
-            text: `*${weatherData.city}* ${emoji}\n\n` +
-                `• *Temperature:* ${Math.round(weatherData.temp)}°C\n` +
-                `• *Feels like:* ${Math.round(weatherData.feels_like)}°C\n` +
-                `• *Weather:* ${weatherData.description}\n` +
-                `• *Humidity:* ${weatherData.humidity}%\n` +
-                `• *Wind:* ${weatherData.wind_speed} m/s\n\n` +
-                `*🌟 Friendly Advice:* ${randomAdvice}\n`,
-            photo: weatherImage
-        };
+        return `*${weatherData.city}* ${emoji}\n` +
+               `• *Temperature:* ${Math.round(weatherData.temp)}°C\n` +
+               `• *Feels like:* ${Math.round(weatherData.feels_like)}°C\n` +
+               `• *Weather:* ${weatherData.description}\n` +
+               `• *Humidity:* ${weatherData.humidity}%\n` +
+               `• *Wind:* ${weatherData.wind_speed} m/s\n` +
+               `*🌟 Tip:* ${randomAdvice}\n`;
     }
 
     getWeatherImage(weather, temp) {
@@ -165,21 +159,20 @@ class WeatherService {
             hour12: true
         });
 
-        let messages = [];
+        let fullMessage = `🌍 *ETHIOPIAN WEATHER UPDATE* 🇪🇹\n\n`;
+
+        // Add weather for each city
         for (const data of weatherDataList) {
-            const formattedData = this.formatWeatherMessage(data);
-            messages.push({
-                text: `🌍 *ETHIOPIAN WEATHER UPDATE* 🇪🇹\n\n${formattedData.text}\n` +
-                    `*📱 Stay Connected:*\n` +
-                    `• *Join Channel:* @etweatheralert\n` +
-                    `• *Contact:* @nastydeed\n\n` +
-                    `${randomFact}\n\n` +
-                    `⏰ *Updated:* ${timestamp}`,
-                photo: formattedData.photo
-            });
+            fullMessage += this.formatWeatherMessage(data) + '\n';
         }
 
-        return messages;
+        // Add footer
+        fullMessage += `\n*📱 Stay Connected:*\n`;
+        fullMessage += `• *Channel:* @etweatheralert\n`;
+        fullMessage += `• *Contact:* @nastydeed\n\n`;
+        fullMessage += `⏰ *Updated:* ${timestamp}`;
+
+        return fullMessage;
     }
 }
 
