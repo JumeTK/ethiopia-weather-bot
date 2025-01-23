@@ -10,7 +10,7 @@ class TelegramBotService {
 
     async sendEarthquakeUpdates() {
         try {
-            // Check for real-time alerts
+            // Check for new earthquakes
             const earthquakes = await earthquakeService.getEthiopiaEarthquakes();
             
             for (const quake of earthquakes) {
@@ -28,10 +28,10 @@ class TelegramBotService {
                 }
             }
 
-            // Send daily summary at 9 PM (21:00)
+            // Send summaries at 9 AM and 9 PM
             const currentHour = new Date().getHours();
-            if (currentHour === 21) {
-                const summary = await earthquakeService.get24HourSummary();
+            if (currentHour === 9 || currentHour === 21) {
+                const summary = await earthquakeService.get12HourSummary();
                 const summaryMessage = earthquakeService.formatSummaryMessage(summary);
                 await this.bot.sendPhoto(
                     TELEGRAM_CHANNEL_ID,

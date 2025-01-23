@@ -2,7 +2,7 @@ name: Scheduled Bot Updates
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes for earthquake updates
+    - cron: '*/2 * * * *'  # Check every 2 minutes for earthquakes
     - cron: '*/30 * * * *' # Every 30 minutes for weather updates
   workflow_dispatch: # Allows manual trigger
 

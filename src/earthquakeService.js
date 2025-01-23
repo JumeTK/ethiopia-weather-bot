@@ -3,15 +3,67 @@ const { USGS_API_URL } = require('../config');
 const infoService = require('./infoService');
 
 class EarthquakeService {
+    constructor() {
+        this.lastCheckedQuakes = new Set();
+        this.lastCheckTime = new Date();
+    }
+
     async getEthiopiaEarthquakes() {
         const now = new Date();
-        const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+        // Look back just 6 minutes to catch any new events
+        // (USGS typically takes 3-5 minutes to process and publish)
+        const sixMinutesAgo = new Date(now.getTime() - 6 * 60 * 1000);
 
         try {
             const response = await axios.get(USGS_API_URL, {
                 params: {
                     format: 'geojson',
-                    starttime: threeHoursAgo.toISOString(),
+                    starttime: sixMinutesAgo.toISOString(),
+                    endtime: now.toISOString(),
+                    latitude: 9.145,
+                    longitude: 40.489,
+                    maxradiuskm: 800,
+                    minmagnitude: 2.0,
+                    orderby: 'time' // Get newest first
+                }
+            });
+
+            // Filter out already reported earthquakes
+            const newQuakes = response.data.features.filter(quake => {
+                const quakeTime = new Date(quake.properties.time);
+                return !this.lastCheckedQuakes.has(quake.id) && 
+                       quakeTime > this.lastCheckTime;
+            });
+
+            // Update last check time
+            this.lastCheckTime = now;
+
+            // Add new quakes to the set
+            newQuakes.forEach(quake => this.lastCheckedQuakes.add(quake.id));
+
+            // Keep set size manageable
+            if (this.lastCheckedQuakes.size > 1000) {
+                const oldestQuakes = Array.from(this.lastCheckedQuakes).slice(0, 500);
+                oldestQuakes.forEach(id => this.lastCheckedQuakes.delete(id));
+            }
+
+            // Sort by time to ensure newest are processed first
+            return newQuakes.sort((a, b) => b.properties.time - a.properties.time);
+        } catch (error) {
+            console.error('Error fetching earthquake data:', error);
+            return [];
+        }
+    }
+
+    async get12HourSummary() {
+        const now = new Date();
+        const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+
+        try {
+            const response = await axios.get(USGS_API_URL, {
+                params: {
+                    format: 'geojson',
+                    starttime: twelveHoursAgo.toISOString(),
                     endtime: now.toISOString(),
                     latitude: 9.145,
                     longitude: 40.489,
@@ -20,15 +72,9 @@ class EarthquakeService {
                 }
             });
 
-            console.log('Earthquake API Response:', {
-                total: response.data.features.length,
-                timestamp: new Date().toISOString(),
-                url: response.config.url
-            });
-
             return response.data.features;
         } catch (error) {
-            console.error('Error fetching earthquake data:', error);
+            console.error('Error fetching 12-hour summary:', error);
             return [];
         }
     }
