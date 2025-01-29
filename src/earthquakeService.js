@@ -28,6 +28,8 @@ class EarthquakeService {
                 }
             });
 
+            console.log('Earthquake API Response:', response.data); // Log the response
+
             // Filter out already reported earthquakes
             const newQuakes = response.data.features.filter(quake => {
                 const quakeTime = new Date(quake.properties.time);
@@ -242,24 +244,17 @@ class EarthquakeService {
     }
 
     shouldSendAlert(earthquake) {
-        // Send immediate alerts for:
-        // 1. Any earthquake above magnitude 2.0 (changed from 3.5)
-        // 2. Any earthquake within 100km of a major city
-        // 3. Any earthquake shallower than 10km
         const magnitude = earthquake.properties.mag;
         const depth = earthquake.geometry.coordinates[2];
         const [lon, lat] = earthquake.geometry.coordinates;
 
-        // Major cities coordinates (expanded list)
+        // Major cities coordinates
         const majorCities = [
             { name: 'Addis Ababa', lat: 9.0320, lon: 38.7421 },
             { name: 'Dire Dawa', lat: 9.5931, lon: 41.8661 },
             { name: 'Mekelle', lat: 13.4967, lon: 39.4767 },
             { name: 'Bahir Dar', lat: 11.5742, lon: 37.3614 },
-            { name: 'Hawassa', lat: 7.0504, lon: 38.4955 },
-            { name: 'Adama', lat: 8.5400, lon: 39.2700 },
-            { name: 'Gondar', lat: 12.6030, lon: 37.4521 },
-            { name: 'Jimma', lat: 7.6667, lon: 36.8333 }
+            { name: 'Hawassa', lat: 7.0504, lon: 38.4955 }
         ];
 
         // Check if near any major city
@@ -268,8 +263,9 @@ class EarthquakeService {
             return distance <= 100; // Within 100km
         });
 
-        // Modified to always alert for magnitude >= 2.0
-        return magnitude >= 2.0 || isNearCity || depth <= 10;
+        const alertCondition = magnitude >= 2.0 || isNearCity || depth <= 10;
+        console.log(`Earthquake ID: ${earthquake.id}, Magnitude: ${magnitude}, Alert: ${alertCondition}`); // Log alert condition
+        return alertCondition;
     }
 
     calculateDistance(lat1, lon1, lat2, lon2) {

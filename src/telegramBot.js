@@ -10,9 +10,12 @@ class TelegramBotService {
 
     async sendEarthquakeUpdates() {
         try {
-            // Check for new earthquakes
             const earthquakes = await earthquakeService.getEthiopiaEarthquakes();
             
+            if (earthquakes.length === 0) {
+                console.log('No new earthquakes to report.');
+            }
+
             for (const quake of earthquakes) {
                 if (earthquakeService.shouldSendAlert(quake)) {
                     const message = earthquakeService.formatMessage(quake);
@@ -24,6 +27,7 @@ class TelegramBotService {
                             parse_mode: 'Markdown'
                         }
                     );
+                    console.log(`Sent alert for earthquake ID: ${quake.id}`);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
